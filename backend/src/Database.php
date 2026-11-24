@@ -44,6 +44,9 @@ final class Database
             }
         }
 
+        // Disable ONLY_FULL_GROUP_BY for TiDB Cloud / MySQL 8 compatibility
+        self::$pdo->exec("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+
         $hasTables = self::$pdo->query("SHOW TABLES LIKE 'products'")->fetch();
         if (!$hasTables && is_file($schemaFile)) {
             $sql = (string)file_get_contents($schemaFile);
