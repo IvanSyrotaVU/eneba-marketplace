@@ -23,6 +23,10 @@ final class Database
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
 
+        if ($port === '4000' || str_contains($host, 'tidbcloud.com')) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
+        }
+
         $schemaFile = __DIR__ . '/../schema.sql';
 
         try {
@@ -40,15 +44,13 @@ final class Database
             }
         }
 
-        // Auto-seed tables if connected to an empty managed cloud database (e.g. defaultdb / test)
         $hasTables = self::$pdo->query("SHOW TABLES LIKE 'products'")->fetch();
         if (!$hasTables && is_file($schemaFile)) {
             $sql = (string)file_get_contents($schemaFile);
             $sql = (string)preg_replace('/^\s*(CREATE\s+DATABASE|USE)\b[^;]*;/im', '', $sql);
-            $seedPdo = new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [
-                PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES => true,
-            ]);
+            $seedOptions = $options;
+            $seedOptions[PDO::ATTR_EMULATE_PREPARES] = true;
+            $seedPdo = new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, $seedOptions);
             $seedPdo->exec($sql);
         }
 
