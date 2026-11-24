@@ -1,0 +1,9 @@
+{
+  "name": "eneba-marketplace",
+  "private": true,
+  "scripts": {
+    "setup": "npm --prefix frontend install",
+    "start": "npm --prefix frontend run dev",
+    "dev": "npm --prefix frontend run dev"
+  }
+}

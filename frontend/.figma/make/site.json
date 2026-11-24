@@ -1,0 +1,10 @@
+{
+  "description": "Shop bestselling games, DLCs, and gift cards with fuzzy search, regional and platform details, and standout deals for gamers.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
