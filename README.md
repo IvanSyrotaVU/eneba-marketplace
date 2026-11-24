@@ -1,90 +1,66 @@
 # Eneba Digital Marketplace Clone
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8%2B-4479A1?logo=mysql&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)
+A full-stack digital game key, software, and gift card marketplace inspired by **Eneba**, built with **React 19 + TypeScript + Vite**, a modular **PHP 8.3 REST API**, and a **TiDB Cloud Serverless (MySQL-compatible)** database.
 
-A full-stack digital game key, software license, and gift card marketplace built with **React + TypeScript (Vite)** and a modular **PHP 8 + MySQL** REST API.
+## Live Links
 
-Every homepage block, catalog filter, multi-seller offer comparison, typo-tolerant search query, authentication session, and checkout order is dynamically served from MySQL—zero catalog data is hardcoded on the frontend.
+- **Live Storefront (Vercel):** https://eneba-marketplace.vercel.app
+- **Live Backend API (Render):** https://eneba-marketplace-jpsp.onrender.com/api/homepage/hero
+- **GitHub Repository:** https://github.com/IvanSyrotaVU/eneba-marketplace
 
----
-
-## Project Architecture
-
-```text
-eneba-marketplace/
-├── backend/
-│   ├── public/
-│   │   └── index.php            # Front-controller router, JSON responses & CORS middleware
-│   ├── src/
-│   │   ├── Database.php         # PDO MySQL singleton with automatic schema.sql bootstrap
-│   │   ├── Auth.php             # HMAC-SHA256 bearer token auth & password verification
-│   │   ├── HomepageService.php  # Modular endpoints per homepage block
-│   │   ├── ProductService.php   # Filtering, sorting, multi-seller offers & fuzzy search
-│   │   └── OrderService.php     # Transactional checkout & digital key generation
-│   └── schema.sql               # Relational schema & 35-product / 116-offer seed dataset
-├── frontend/
-│   ├── public/img/              # Brand logo & promotional cover artwork
-│   ├── src/
-│   │   ├── api.ts               # Authenticated fetch client & media normalizer
-│   │   ├── shop.tsx             # Global cart, auth session & order state context
-│   │   ├── data.ts              # Shared TypeScript models & formatting utilities
-│   │   ├── router.ts            # Hash-based client router with protected routes
-│   │   └── components/          # Hero, Sections, StorePage, ProductPage, CheckoutPage, Orders
-│   └── start-dev.mjs            # Concurrent launcher for PHP API (:8000) & Vite (:8443)
-├── package.json                 # Root setup & start scripts
-└── README.md
-```
+> **Note for Evaluators:** The backend is hosted on Render's free tier. If the API has been idle for more than 15 minutes, the initial request takes ~30–50 seconds to wake the container; all subsequent browsing, filtering, and checkout actions respond immediately.
 
 ---
 
-## REST API & Core Features
+## Tech Stack & Architecture
 
-| Module | Endpoint | Description |
+| Layer | Technology | Hosting & Details |
 | :--- | :--- | :--- |
-| **Modular Homepage** | `GET /api/homepage/hero`<br>`GET /api/homepage/bestsellers`<br>`GET /api/homepage/deals` | Dedicated backend service endpoints per homepage section (*Ghostrunner 2* hero banner, *Up Next* queue, *Best Sellers*, and *Flash Deals*). |
-| **Catalog Filtering** | `GET /api/products` | Server-side filtering by category (`all`, `cheap`, `software`, `giftcards`), platform (`Steam`, `PS5`, `Xbox`, `Switch`, `PC`), region (`GLOBAL`, `EUROPE`, `US`), price range, and sort order. |
-| **Fuzzy Search** | `GET /api/search?q=...` | Server-side Levenshtein similarity matching with automatic *"Showing matches for..."* spelling corrections and highlighted token matches. |
-| **Seller Comparison** | `GET /api/products/:id` | Returns product details alongside competing seller offers, ratings, completed sales counts, and live stock. |
-| **Authentication** | `POST /api/auth/login`<br>`POST /api/auth/register`<br>`POST /api/auth/demo` | Issues signed bearer tokens for registered accounts or one-click sandbox demo access. |
-| **Checkout & Orders** | `POST /api/checkout`<br>`GET /api/orders` | Executes MySQL transactions with `FOR UPDATE` row locking to decrement stock, generate `XXXXX-XXXXX-XXXXX` activation keys, and persist order receipts. |
+| **Frontend** | React 19, TypeScript, Vite 8, Tailwind CSS v4 | Deployed on **Vercel** (`frontend/` root directory) |
+| **Backend API** | PHP 8.3 (`PDO`, custom front-controller router) | Containerized via `Dockerfile` on **Render** (Frankfurt) |
+| **Database** | MySQL 8 / TiDB Cloud Serverless | Hosted on **TiDB Cloud** (`eu-central-1`, TLS/SSL port `4000`) |
+| **UI Prototyping** | Figma / Figma Make | Initial design system and component layout |
 
 ---
 
-## Quick Start
+## Key Features
 
-### Prerequisites
-- **PHP 8.1+** with `pdo_mysql` enabled (XAMPP, Laragon, or standalone PHP CLI)
-- **MySQL 8+** / MariaDB running locally on `127.0.0.1:3306` *(defaults to user `root` with an empty password; override via `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` if needed)*
-- **Node.js 18+** and `npm`
-
-### 1. Install Dependencies
-```bash
-npm run setup
-```
-
-### 2. Launch Full Stack (API + Frontend)
-```bash
-npm start
-```
-This single command starts the **PHP + MySQL REST API** on `http://localhost:8000` and the **Vite dev server** on `http://localhost:8443`.
-
-> **Automatic Database Provisioning:** On the first API request, `Database.php` automatically creates the `eneba_clone` database and imports `backend/schema.sql` if it does not already exist.
-
-Open **`http://localhost:8443/`** in your browser.
+- **Dynamic Storefront:** Hero drop carousel with *Up Next* queue, *Best Sellers*, *Flash Deals* with live countdown timers, and dedicated *Software* & *Gift Cards* sections.
+- **Multi-Seller Marketplace:** Each product aggregates competing seller offers with seller ratings, region tags (`GLOBAL`, `EUROPE`, `US`), platform badges (`Steam`, `PS5`, `Xbox`, `Nintendo`), and cashback rewards.
+- **Live Search & Faceted Catalog:** Instant header search dropdown plus multi-filter catalog browsing (category, platform, region, price range, stock/pre-order status, and sorting).
+- **Authentication & Instant Demo Account:** One-click **Instant Demo Account** login (alongside standard registration and sign-in) with persistent session state.
+- **Cart, Wishlist & Instant Key Delivery:** Full checkout flow supporting Eneba Wallet cashback balance, promo codes, and immediate activation key generation in order history.
+- **Zero-Config Database Bootstrapping:** `Database.php` automatically initializes tables and seeds **35 products**, **5 sellers**, and **116 offers** on first connection to an empty database.
 
 ---
 
-## Demo Account & Tester Checklist
+## Evaluator Quick-Test Guide
 
-- **Email:** `demo@eneba.gg`
-- **Password:** `demo1234` *(or click **Instant Demo Account** on the Sign In page)*
+1. **Open the Live Storefront** on Vercel and verify that the hero banner, *Best Sellers*, and *Flash Deals* load from the live Render + TiDB Cloud API.
+2. **Browse & Filter:** Switch between *Store*, *Cheap Games*, *Software*, and *Gift Cards*, or filter by platform and region in the catalog.
+3. **Compare Seller Offers:** Open any product page to view multiple seller offers and add an item to your cart.
+4. **Sign In & Checkout:** Click **Sign in** → **Instant Demo Account**, proceed to **Checkout**, complete an order, and view the generated digital activation key.
 
-1. **Modular Homepage:** Confirm the Hero banner, *Up Next* widget, *Best Sellers* carousel, and *Flash Deals* section load dynamically from MySQL.
-2. **Typo-Tolerant Search:** Type `cybrpunk` or `eldn` in the top search bar to verify spell-correction suggestions and highlighted results.
-3. **Catalog Filters & Sorting:** Switch between **Store**, **Cheap Games**, **Software**, and **Gift Cards**, filter by platform/region/price, and test sorting.
-4. **Multi-Seller Offers:** Open any product page and add an offer from a secondary seller under **Other Offers** to verify that the cart captures that seller's exact price.
-5. **Transactional Checkout & Persistence:** Sign in with the demo account, complete checkout using **Credit/Debit Card**, **Apple Pay**, or **Crypto**, and refresh **My Orders** (`#/orders`) to verify the generated digital keys persist in MySQL.
+---
+
+## Local Development Setup
+
+### 1. Database
+Import `backend/schema.sql` into a local MySQL 8 / MariaDB instance (or configure environment variables for a cloud MySQL database):
+- `DB_HOST` (default: `127.0.0.1`)
+- `DB_PORT` (default: `3306`)
+- `DB_NAME` (default: `eneba_clone`)
+- `DB_USER` (default: `root`)
+- `DB_PASS` (default: empty)
+
+### 2. Backend API (PHP 8.1+)
+```bash
+php -S 127.0.0.1:8000 -t backend/public backend/public/index.php
+```
+
+### 3. Frontend (Node.js 20+)
+```bash
+cd frontend
+npm install
+npm run dev
+```
