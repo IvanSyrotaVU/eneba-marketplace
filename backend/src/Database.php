@@ -23,15 +23,12 @@ final class Database
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
 
+        $schemaFile = __DIR__ . '/../schema.sql';
+
         try {
             self::$pdo = new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, $options);
         } catch (PDOException $e) {
-            // Error 1049 = Unknown database -> auto-create & seed from schema.sql
-            if ((int)($e->errorInfo[1] ?? 0) === 1049) {
-                $schemaFile = __DIR__ . '/../schema.sql';
-                if (!is_file($schemaFile)) {
-                    throw $e;
-                }
+            if ((int)($e->errorInfo[1] ?? 0) === 1049 && is_file($schemaFile)) {
                 $bootstrap = new PDO("mysql:host={$host};port={$port};charset=utf8mb4", $user, $pass, [
                     PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_EMULATE_PREPARES => true,
@@ -41,6 +38,18 @@ final class Database
             } else {
                 throw $e;
             }
+        }
+
+        // Auto-seed tables if connected to an empty managed cloud database (e.g. defaultdb / test)
+        $hasTables = self::$pdo->query("SHOW TABLES LIKE 'products'")->fetch();
+        if (!$hasTables && is_file($schemaFile)) {
+            $sql = (string)file_get_contents($schemaFile);
+            $sql = (string)preg_replace('/^\s*(CREATE\s+DATABASE|USE)\b[^;]*;/im', '', $sql);
+            $seedPdo = new PDO("mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4", $user, $pass, [
+                PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ]);
+            $seedPdo->exec($sql);
         }
 
         return self::$pdo;
