@@ -4,7 +4,7 @@ A full-stack digital game key, software, and gift card marketplace inspired by *
 
 ## Live Links
 
-- **Live Storefront (Vercel):** https://eneba-marketplace.vercel.app
+- **Live Storefront (Vercel):** https://eneba-marketplace-chi.vercel.app/
 - **Live Backend API (Render):** https://eneba-marketplace-jpsp.onrender.com/api/homepage/hero
 - **GitHub Repository:** https://github.com/IvanSyrotaVU/eneba-marketplace
 
